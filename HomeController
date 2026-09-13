@@ -1,0 +1,54 @@
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Web;
+using System.Web.Mvc;
+using Newtonsoft.Json;
+using TestCase01.App_Data;
+using TestCase01.Models;
+using TestCase01.Staffportal;
+
+namespace TestCase01.Controllers
+{
+    public class HomeController : Controller
+    {
+        Staffportal_PortClient webportals = BcService.ObjNav;
+
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        public ActionResult ProgrammeCardOverview(string username = null)
+        {
+            List<ProgrammeCard> programmeCards;
+            using (var odataResponse = OdataService.GetOdataData("ProgrammeCard"))
+            using (var stream = odataResponse.GetResponseStream())
+            using (var reader = new StreamReader(stream))
+            {
+                string json = reader.ReadToEnd();
+                var result = JsonConvert.DeserializeObject<ODataCollectionResponse<ProgrammeCard>>(json);
+                programmeCards = result.value;
+            }
+
+            string staffNo = username ?? ConfigurationManager.AppSettings["W_USER"];
+            ViewBag.PasswordChanged = webportals.CheckPStatusChangedAsync(staffNo).GetAwaiter().GetResult().return_value;
+            return View(programmeCards);
+        }
+
+        public ActionResult About()
+        {
+            ViewBag.Message = "Your application description page.";
+            return View();
+        }
+
+        public ActionResult Contact()
+        {
+            ViewBag.Message = "Your contact page.";
+            return View();
+        }
+    }
+}
