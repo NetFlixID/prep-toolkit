@@ -1,0 +1,26 @@
+using System.Configuration;
+using System.Net;
+
+namespace TestCase01.App_Data
+{
+    public class OdataService
+    {
+        public static HttpWebResponse GetOdataData(string page, string company = null)
+        {
+            string odataUri = ConfigurationManager.AppSettings["ODATA_URI"];
+
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(odataUri + page);
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = "GET";
+            httpWebRequest.PreAuthenticate = true;
+            httpWebRequest.Credentials = new NetworkCredential(
+                ConfigurationManager.AppSettings["W_USER"],
+                ConfigurationManager.AppSettings["W_PWD"],
+                ConfigurationManager.AppSettings["DOMAIN"]);
+            httpWebRequest.Timeout = 1000000;
+
+            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            return httpResponse;
+        }
+    }
+}
