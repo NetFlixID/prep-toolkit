@@ -1,1 +1,26 @@
+using System.Configuration;
+using System.ServiceModel;
+using TestCase01.Staffportal;
 
+namespace TestCase01.App_Data
+{
+    public class BcService
+    {
+        public static Staffportal_PortClient ObjNav
+        {
+            get
+            {
+                var ws = new Staffportal_PortClient();
+
+                var binding = (BasicHttpBinding)ws.Endpoint.Binding;
+                binding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
+                binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
+
+                ws.ClientCredentials.UserName.UserName = ConfigurationManager.AppSettings["W_USER"];
+                ws.ClientCredentials.UserName.Password = ConfigurationManager.AppSettings["W_PWD"];
+
+                return ws;
+            }
+        }
+    }
+}
